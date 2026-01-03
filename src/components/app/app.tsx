@@ -24,101 +24,81 @@ import styles from './app.module.css';
 import { useSelector } from '../../services/store';
 import { useAuth } from '../../services/slices/useAuth';
 
-const AppContent: FC = () => {
+const App: FC = () => {
   useAuth();
-  const location = useLocation();
-  const background = location.state?.background;
 
   return (
-    <div className={styles.app}>
-      <AppHeader />
-      <Routes location={background || location}>
-        <Route path='/' element={<ConstructorPage />} />
-        <Route path='/feed' element={<Feed />} />
-        <Route path='/feed/:number' element={<OrderInfoPage />} />
-        <Route path='/ingredients/:id' element={<IngredientDetailsPage />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
-        <Route path='/forgot-password' element={<ForgotPassword />} />
-        <Route
-          path='/reset-password'
-          element={<ProtectedRoute element={<ResetPassword />} />}
-        />
-        <Route
-          path='/profile'
-          element={<ProtectedRoute element={<Profile />} />}
-        />
-        <Route
-          path='/profile/orders'
-          element={<ProtectedRoute element={<ProfileOrders />} />}
-        />
-        <Route
-          path='/profile/orders/:number'
-          element={<ProtectedRoute element={<OrderInfoPage />} />}
-        />
-        <Route path='*' element={<NotFound404 />} />
-      </Routes>
-      {background && (
+    <BrowserRouter>
+      <div className={styles.app}>
+        <AppHeader />
         <Routes>
+          <Route path='/' element={<ConstructorPage />} />
+          <Route path='/feed' element={<Feed />} />
+          <Route path='/feed/:number' element={<OrderInfoPage />} />
+          <Route path='/ingredients/:id' element={<IngredientDetailsPage />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route
-            path='/ingredients/:id'
-            element={<ModalRoute type='ingredient' />}
+            path='/reset-password'
+            element={<ProtectedRoute element={<ResetPassword />} />}
           />
           <Route
-            path='/feed/:number'
-            element={<ModalRoute type='feed-order' />}
+            path='/profile'
+            element={<ProtectedRoute element={<Profile />} />}
           />
           <Route
-            path='/profile/orders/:number'
-            element={<ModalRoute type='profile-order' />}
+            path='/profile/orders'
+            element={<ProtectedRoute element={<ProfileOrders />} />}
           />
+          <Route path='/profile/orders/:number' element={<OrderInfoPage />} />
+          <Route path='*' element={<NotFound404 />} />
         </Routes>
-      )}
-    </div>
+      </div>
+    </BrowserRouter>
   );
 };
 
-const ModalRoute: FC<{
-  type: 'ingredient' | 'feed-order' | 'profile-order';
-}> = ({ type }) => {
+const IngredientDetailsPage: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const background = location.state?.background;
 
   const handleClose = () => {
-    if (type === 'ingredient') {
-      navigate(-1);
-    } else if (type === 'feed-order') {
-      navigate('/feed');
-    } else {
-      navigate('/profile/orders');
-    }
+    navigate(background?.pathname || '/');
   };
 
-  const getTitle = () =>
-    type === 'ingredient' ? 'Детали ингредиента' : 'Детали заказа';
-
   return (
-    <Modal title={getTitle()} onClose={handleClose}>
-      {type === 'ingredient' ? <IngredientDetails /> : <OrderInfo />}
-    </Modal>
+    <>
+      <ConstructorPage />
+
+      <Modal title='Детали ингредиента' onClose={handleClose}>
+        <IngredientDetails />
+      </Modal>
+    </>
   );
 };
 
-const IngredientDetailsPage: FC = () => (
-  <div className={styles.detailPageWrap}>
-    <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
-      Детали ингредиента
-    </h1>
-    <IngredientDetails />
-  </div>
-);
+const OrderInfoPage: FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const background = location.state?.background;
+  const isProfile = location.pathname.includes('/profile');
 
-const OrderInfoPage: FC = () => (
-  <div className={styles.detailPageWrap}>
-    <OrderInfo />
-  </div>
-);
+  const handleClose = () => {
+    navigate(background?.pathname || (isProfile ? '/profile/orders' : '/feed'));
+  };
+
+  return (
+    <>
+      {isProfile ? <ProfileOrders /> : <Feed />}
+
+      <Modal title='Детали заказа' onClose={handleClose}>
+        <OrderInfo />
+      </Modal>
+    </>
+  );
+};
 
 const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
   const { user, isAuthChecked } = useSelector((state) => state.auth);
@@ -134,11 +114,5 @@ const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
 
   return element;
 };
-
-const App: FC = () => (
-  <BrowserRouter>
-    <AppContent />
-  </BrowserRouter>
-);
 
 export default App;
