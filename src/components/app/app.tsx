@@ -111,7 +111,7 @@ const OrderInfoPage: FC = () => {
           <Route path='/feed/:number/*' element={<Feed />} />
           <Route path='/profile/orders/:number/*' element={<ProfileOrders />} />
         </Routes>
-        <Modal title='' onClose={handleClose}>
+        <Modal title='Детали заказа' onClose={handleClose}>
           <OrderInfo />
         </Modal>
       </>

@@ -28,14 +28,18 @@ export const BurgerConstructor: FC = () => {
       constructorItems.bun._id
     ];
 
-    dispatch(createOrder(ingredientIds));
+    dispatch(createOrder(ingredientIds))
+      .unwrap()
+      .then(() => {
+        dispatch(clearConstructor());
+      })
+      .catch((error) => {
+        console.error('Failed to create order:', error);
+      });
   };
 
   const closeOrderModal = () => {
     dispatch(clearOrder());
-    if (order) {
-      dispatch(clearConstructor());
-    }
   };
 
   const price = useMemo(
