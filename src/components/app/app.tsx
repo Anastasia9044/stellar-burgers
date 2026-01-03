@@ -24,7 +24,6 @@ import styles from './app.module.css';
 import { useSelector } from '../../services/store';
 import { useAuth } from '../../services/slices/useAuth';
 
-// Основной компонент приложения
 const AppContent: FC = () => {
   useAuth();
   const location = useLocation();
@@ -33,8 +32,6 @@ const AppContent: FC = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-
-      {/* Основные маршруты - рендерятся всегда */}
       <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
@@ -61,8 +58,6 @@ const AppContent: FC = () => {
         />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
-
-      {/* Модальные окна - рендерятся поверх основного контента */}
       {background && (
         <Routes>
           <Route
@@ -83,7 +78,6 @@ const AppContent: FC = () => {
   );
 };
 
-// Компонент для модального окна
 const ModalRoute: FC<{
   type: 'ingredient' | 'feed-order' | 'profile-order';
 }> = ({ type }) => {
@@ -111,7 +105,6 @@ const ModalRoute: FC<{
   );
 };
 
-// Упрощенные компоненты страниц
 const IngredientDetailsPage: FC = () => (
   <div className={styles.detailPageWrap}>
     <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
@@ -142,7 +135,6 @@ const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
   return element;
 };
 
-// Главный компонент App
 const App: FC = () => (
   <BrowserRouter>
     <AppContent />
