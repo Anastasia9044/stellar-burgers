@@ -24,122 +24,113 @@ import styles from './app.module.css';
 import { useSelector } from '../../services/store';
 import { useAuth } from '../../services/slices/useAuth';
 
-const App: FC = () => {
+// Основной компонент приложения
+const AppContent: FC = () => {
   useAuth();
-
-  const { isAuthChecked, isAuthInProgress } = useSelector(
-    (state) => state.auth
-  );
-
-  return (
-    <BrowserRouter>
-      <div className={styles.app}>
-        <AppHeader />
-        <Routes>
-          <Route path='/' element={<ConstructorPage />} />
-          <Route path='/feed' element={<Feed />} />
-          <Route path='/feed/:number/*' element={<OrderInfoPage />} />
-          <Route
-            path='/ingredients/:id/*'
-            element={<IngredientDetailsPage />}
-          />
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/forgot-password' element={<ForgotPassword />} />
-          <Route
-            path='/reset-password'
-            element={<ProtectedRoute element={<ResetPassword />} />}
-          />
-          <Route
-            path='/profile'
-            element={<ProtectedRoute element={<Profile />} />}
-          />
-          <Route
-            path='/profile/orders'
-            element={<ProtectedRoute element={<ProfileOrders />} />}
-          />
-          <Route
-            path='/profile/orders/:number/*'
-            element={<ProtectedRoute element={<OrderInfoPage />} />}
-          />
-          <Route path='*' element={<NotFound404 />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
-  );
-};
-
-const IngredientDetailsPage: FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const background = location.state?.background;
 
-  const handleClose = () => {
-    navigate(-1);
-  };
-
-  if (background) {
-    return (
-      <>
-        <Routes>
-          <Route path='/ingredients/:id/*' element={<ConstructorPage />} />
-        </Routes>
-        <Modal title='Детали ингредиента' onClose={handleClose}>
-          <IngredientDetails />
-        </Modal>
-      </>
-    );
-  }
-
   return (
-    <div className={styles.detailPageWrap}>
-      <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
-        Детали ингредиента
-      </h1>
-      <IngredientDetails />
+    <div className={styles.app}>
+      <AppHeader />
+
+      {/* Основные маршруты - рендерятся всегда */}
+      <Routes location={background || location}>
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/feed' element={<Feed />} />
+        <Route path='/feed/:number' element={<OrderInfoPage />} />
+        <Route path='/ingredients/:id' element={<IngredientDetailsPage />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
+        <Route
+          path='/reset-password'
+          element={<ProtectedRoute element={<ResetPassword />} />}
+        />
+        <Route
+          path='/profile'
+          element={<ProtectedRoute element={<Profile />} />}
+        />
+        <Route
+          path='/profile/orders'
+          element={<ProtectedRoute element={<ProfileOrders />} />}
+        />
+        <Route
+          path='/profile/orders/:number'
+          element={<ProtectedRoute element={<OrderInfoPage />} />}
+        />
+        <Route path='*' element={<NotFound404 />} />
+      </Routes>
+
+      {/* Модальные окна - рендерятся поверх основного контента */}
+      {background && (
+        <Routes>
+          <Route
+            path='/ingredients/:id'
+            element={<ModalRoute type='ingredient' />}
+          />
+          <Route
+            path='/feed/:number'
+            element={<ModalRoute type='feed-order' />}
+          />
+          <Route
+            path='/profile/orders/:number'
+            element={<ModalRoute type='profile-order' />}
+          />
+        </Routes>
+      )}
     </div>
   );
 };
 
-const OrderInfoPage: FC = () => {
-  const location = useLocation();
+// Компонент для модального окна
+const ModalRoute: FC<{
+  type: 'ingredient' | 'feed-order' | 'profile-order';
+}> = ({ type }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const background = location.state?.background;
 
   const handleClose = () => {
-    if (location.pathname.includes('/profile/orders')) {
-      navigate('/profile/orders');
-    } else if (location.pathname.includes('/feed')) {
+    if (type === 'ingredient') {
+      navigate(-1);
+    } else if (type === 'feed-order') {
       navigate('/feed');
     } else {
-      navigate(-1);
+      navigate('/profile/orders');
     }
   };
 
-  if (background) {
-    return (
-      <>
-        <Routes>
-          <Route path='/feed/:number/*' element={<Feed />} />
-          <Route path='/profile/orders/:number/*' element={<ProfileOrders />} />
-        </Routes>
-        <Modal title='Детали заказа' onClose={handleClose}>
-          <OrderInfo />
-        </Modal>
-      </>
-    );
-  }
+  const getTitle = () =>
+    type === 'ingredient' ? 'Детали ингредиента' : 'Детали заказа';
 
   return (
-    <div className={styles.detailPageWrap}>
-      <OrderInfo />
-    </div>
+    <Modal title={getTitle()} onClose={handleClose}>
+      {type === 'ingredient' ? <IngredientDetails /> : <OrderInfo />}
+    </Modal>
   );
 };
+
+// Упрощенные компоненты страниц
+const IngredientDetailsPage: FC = () => (
+  <div className={styles.detailPageWrap}>
+    <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
+      Детали ингредиента
+    </h1>
+    <IngredientDetails />
+  </div>
+);
+
+const OrderInfoPage: FC = () => (
+  <div className={styles.detailPageWrap}>
+    <OrderInfo />
+  </div>
+);
 
 const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
   const { user, isAuthChecked } = useSelector((state) => state.auth);
   const location = useLocation();
+
   if (!isAuthChecked) {
     return null;
   }
@@ -150,5 +141,12 @@ const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
 
   return element;
 };
+
+// Главный компонент App
+const App: FC = () => (
+  <BrowserRouter>
+    <AppContent />
+  </BrowserRouter>
+);
 
 export default App;
