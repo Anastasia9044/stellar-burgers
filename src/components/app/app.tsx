@@ -22,40 +22,52 @@ import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import '../../index.css';
 import styles from './app.module.css';
 import { useSelector } from '../../services/store';
+import { useAuth } from '../../services/slices/useAuth';
 
-const App: FC = () => (
-  <BrowserRouter>
-    <div className={styles.app}>
-      <AppHeader />
-      <Routes>
-        <Route path='/' element={<ConstructorPage />} />
-        <Route path='/feed' element={<Feed />} />
-        <Route path='/feed/:number/*' element={<OrderInfoPage />} />
-        <Route path='/ingredients/:id/*' element={<IngredientDetailsPage />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
-        <Route path='/forgot-password' element={<ForgotPassword />} />
-        <Route
-          path='/reset-password'
-          element={<ProtectedRoute element={<ResetPassword />} />}
-        />
-        <Route
-          path='/profile'
-          element={<ProtectedRoute element={<Profile />} />}
-        />
-        <Route
-          path='/profile/orders'
-          element={<ProtectedRoute element={<ProfileOrders />} />}
-        />
-        <Route
-          path='/profile/orders/:number/*'
-          element={<ProtectedRoute element={<OrderInfoPage />} />}
-        />
-        <Route path='*' element={<NotFound404 />} />
-      </Routes>
-    </div>
-  </BrowserRouter>
-);
+const App: FC = () => {
+  useAuth();
+
+  const { isAuthChecked, isAuthInProgress } = useSelector(
+    (state) => state.auth
+  );
+
+  return (
+    <BrowserRouter>
+      <div className={styles.app}>
+        <AppHeader />
+        <Routes>
+          <Route path='/' element={<ConstructorPage />} />
+          <Route path='/feed' element={<Feed />} />
+          <Route path='/feed/:number/*' element={<OrderInfoPage />} />
+          <Route
+            path='/ingredients/:id/*'
+            element={<IngredientDetailsPage />}
+          />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route
+            path='/reset-password'
+            element={<ProtectedRoute element={<ResetPassword />} />}
+          />
+          <Route
+            path='/profile'
+            element={<ProtectedRoute element={<Profile />} />}
+          />
+          <Route
+            path='/profile/orders'
+            element={<ProtectedRoute element={<ProfileOrders />} />}
+          />
+          <Route
+            path='/profile/orders/:number/*'
+            element={<ProtectedRoute element={<OrderInfoPage />} />}
+          />
+          <Route path='*' element={<NotFound404 />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+};
 
 const IngredientDetailsPage: FC = () => {
   const location = useLocation();
@@ -126,8 +138,11 @@ const OrderInfoPage: FC = () => {
 };
 
 const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, isAuthChecked } = useSelector((state) => state.auth);
   const location = useLocation();
+  if (!isAuthChecked) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to='/login' state={{ from: location }} replace />;

@@ -123,6 +123,22 @@ type TOrderResponse = TServerResponse<{
   orders: TOrder[];
 }>;
 
+export const refreshTokenApi = async (data: { token: string }) => {
+  const response = await fetch(`${URL}/auth/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to refresh token');
+  }
+
+  return response.json();
+};
+
 export const getOrderByNumberApi = (number: number) =>
   fetch(`${URL}/orders/${number}`, {
     method: 'GET',

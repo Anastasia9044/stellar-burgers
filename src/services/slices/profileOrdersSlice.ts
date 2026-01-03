@@ -21,6 +21,14 @@ const initialState: TProfileOrdersState = {
   wsConnected: false
 };
 
+export const getUserOrdersThunk = createAsyncThunk(
+  'user/getOrders',
+  async () => {
+    const orders = await getOrdersApi();
+    return orders;
+  }
+);
+
 const profileOrdersSlice = createSlice({
   name: 'profileOrders',
   initialState,

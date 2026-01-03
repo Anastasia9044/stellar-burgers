@@ -25,6 +25,11 @@ const initialState: TFeedState = {
   wsConnected: false
 };
 
+export const getFeedsThunk = createAsyncThunk('feed/getAll', async () => {
+  const response = await getFeedsApi();
+  return response;
+});
+
 const feedSlice = createSlice({
   name: 'feed',
   initialState,
