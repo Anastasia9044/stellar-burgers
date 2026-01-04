@@ -5,9 +5,21 @@ import { BurgerIngredients, BurgerConstructor } from '@components';
 import { Preloader } from '@ui';
 import styles from './constructor-page.module.css';
 
-export const ConstructorPage: FC = () => {
+interface ConstructorPageProps {
+  onIngredientClick?: (id: string) => void;
+}
+
+export const ConstructorPage: FC<ConstructorPageProps> = ({
+  onIngredientClick
+}) => {
   const dispatch = useDispatch();
   const { ingredients, loading } = useSelector((state) => state.ingredients);
+
+  const handleIngredientClick = (id: string) => {
+    if (onIngredientClick) {
+      onIngredientClick(id);
+    }
+  };
 
   useEffect(() => {
     if (ingredients.length === 0) {
