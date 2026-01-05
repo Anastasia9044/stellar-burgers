@@ -1,6 +1,5 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
-import { getIngredients } from '../../services/slices/ingredientsSlice';
 import { BurgerIngredients, BurgerConstructor } from '@components';
 import { Preloader } from '@ui';
 import styles from './constructor-page.module.css';
@@ -12,7 +11,6 @@ interface ConstructorPageProps {
 export const ConstructorPage: FC<ConstructorPageProps> = ({
   onIngredientClick
 }) => {
-  const dispatch = useDispatch();
   const { ingredients, loading } = useSelector((state) => state.ingredients);
 
   const handleIngredientClick = (id: string) => {
@@ -20,12 +18,6 @@ export const ConstructorPage: FC<ConstructorPageProps> = ({
       onIngredientClick(id);
     }
   };
-
-  useEffect(() => {
-    if (ingredients.length === 0) {
-      dispatch(getIngredients());
-    }
-  }, [dispatch, ingredients.length]);
 
   return (
     <>
