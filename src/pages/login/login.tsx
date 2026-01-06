@@ -7,8 +7,6 @@ import { getErrorMsg } from '../../utils/util';
 
 export const Login: FC = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,9 +18,6 @@ export const Login: FC = () => {
 
     try {
       await dispatch(loginUser({ email, password })).unwrap();
-      // Перенаправляем пользователя на предыдущую страницу или на главную
-      const from = location.state?.from || '/';
-      navigate(from, { replace: true });
     } catch (err: unknown) {
       setError(getErrorMsg(err));
     }

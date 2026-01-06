@@ -29,14 +29,14 @@ export const OrderInfo: FC = () => {
   const orderData = currentOrders.find((order) => order.number === orderId);
 
   useEffect(() => {
-    if (orderId > 0) {
+    if (orderId > 0 && currentOrders.length === 0) {
       if (isProfile) {
         dispatch(getUserOrdersThunk());
       } else {
         dispatch(getFeedsThunk());
       }
     }
-  }, [dispatch, orderId, isProfile]);
+  }, [dispatch, orderId, isProfile, currentOrders.length]);
 
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
@@ -80,6 +80,14 @@ export const OrderInfo: FC = () => {
 
   if (currentLoading) {
     return <Preloader />;
+  }
+
+  if (!orderData && !currentLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <p className='text text_type_main-medium'>Заказ #{orderId} не найден</p>
+      </div>
+    );
   }
 
   if (!orderInfo) {

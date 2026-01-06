@@ -49,28 +49,6 @@ const App: FC = () => {
 const RoutesHandler: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (!location.state?.background) {
-      const path = location.pathname;
-      if (path.startsWith('/ingredients/')) {
-        navigate('/', {
-          replace: true,
-          state: { background: location }
-        });
-      } else if (path.startsWith('/feed/')) {
-        navigate('/feed', {
-          replace: true,
-          state: { background: location }
-        });
-      } else if (path.startsWith('/profile/orders/')) {
-        navigate('/profile/orders', {
-          replace: true,
-          state: { background: location }
-        });
-      }
-    }
-  }, [location, navigate]);
-
   const background = location.state?.background;
 
   return (
@@ -95,7 +73,10 @@ const RoutesHandler: FC = () => {
           path='/profile/orders'
           element={<ProtectedRoute element={<ProfileOrders />} />}
         />
-        <Route path='/profile/orders/:number' element={<OrderInfoPage />} />
+        <Route
+          path='/profile/orders/:number'
+          element={<ProtectedRoute element={<OrderInfoPage isProfile />} />}
+        />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
 
@@ -135,44 +116,25 @@ const RoutesHandler: FC = () => {
   );
 };
 
-const IngredientDetailsPage: FC = () => {
-  const location = useLocation();
-  const background = location.state?.background;
+const IngredientDetailsPage: FC = () => (
+  <div className={styles.detailPageWrap}>
+    <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
+      Детали ингредиента
+    </h1>
+    <IngredientDetails />
+  </div>
+);
 
-  if (background) {
-    return null;
-  }
-
-  return (
-    <div className={styles.detailPageWrap}>
+const OrderInfoPage: FC<{ isProfile?: boolean }> = ({ isProfile = false }) => (
+  <div className={styles.detailPageWrap}>
+    {isProfile && (
       <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
-        Детали ингредиента
+        Детали заказа
       </h1>
-      <IngredientDetails />
-    </div>
-  );
-};
-
-const OrderInfoPage: FC = () => {
-  const location = useLocation();
-  const background = location.state?.background;
-
-  if (background) {
-    return null;
-  }
-
-  const isProfile = location.pathname.includes('/profile');
-  return (
-    <div className={styles.detailPageWrap}>
-      {isProfile && (
-        <h1 className={`text text_type_main-large ${styles.detailHeader}`}>
-          Детали заказа
-        </h1>
-      )}
-      <OrderInfo />
-    </div>
-  );
-};
+    )}
+    <OrderInfo />
+  </div>
+);
 
 const ProtectedRoute: FC<{ element: JSX.Element }> = ({ element }) => {
   const { user, isAuthChecked } = useSelector((state) => state.auth);
