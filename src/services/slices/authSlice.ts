@@ -121,7 +121,7 @@ export const checkUserAuth = createAsyncThunk(
   }
 );
 
-type TAuthState = {
+export type TAuthState = {
   user: TUser | null;
   loading: boolean;
   error: string | null;

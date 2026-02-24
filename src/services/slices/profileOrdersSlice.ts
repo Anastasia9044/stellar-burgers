@@ -7,7 +7,7 @@ export const getProfileOrders = createAsyncThunk(
   async () => await getOrdersApi()
 );
 
-type TProfileOrdersState = {
+export type TProfileOrdersState = {
   orders: TOrder[];
   loading: boolean;
   error: string | null;
@@ -65,4 +65,12 @@ const profileOrdersSlice = createSlice({
       });
   }
 });
+export const {
+  wsProfileConnectionStart,
+  wsProfileConnectionSuccess,
+  wsProfileConnectionError,
+  wsProfileConnectionClosed,
+  wsProfileGetMessage
+} = profileOrdersSlice.actions;
+
 export default profileOrdersSlice.reducer;
