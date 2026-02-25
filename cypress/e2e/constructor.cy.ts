@@ -4,7 +4,11 @@ const selectors = {
   modalClose: '[data-cy="modal-close"]',
   modalOverlay: '[data-cy="modal-overlay"]',
   orderButton: '[data-cy="order-button"]',
-  orderNumber: '[data-cy="order-number"]'
+  orderNumber: '[data-cy="order-number"]',
+  ingredientName: '[data-cy="ingredient-details-name"]',
+  emptyBunTop: '[data-cy="empty-bun-top"]',
+  emptyBunBottom: '[data-cy="empty-bun-bottom"]',
+  emptyIngredients: '[data-cy="empty-ingredients"]'
 };
 
 describe('Конструктор бургера', () => {
@@ -39,20 +43,28 @@ describe('Конструктор бургера', () => {
   });
 
   describe('Модальное окно ингредиента', () => {
-    it('Открывается по клику на ингредиент', () => {
-      cy.contains('Краторная булка N-200i').click();
+    it('Открывается по клику на ингредиент и содержит правильные данные', () => {
+      const ingredientName = 'Краторная булка N-200i';
+
+      cy.contains(ingredientName).click();
+
       cy.get(selectors.modal).should('be.visible');
       cy.get(selectors.modalTitle).should('contain', 'Детали ингредиента');
+      cy.get(selectors.ingredientName).should('contain', ingredientName);
     });
 
     it('Закрывается по клику на крестик', () => {
       cy.contains('Краторная булка N-200i').click();
+      cy.get(selectors.modal).should('be.visible');
+
       cy.get(selectors.modalClose).click();
       cy.get(selectors.modal).should('not.exist');
     });
 
     it('Закрывается по клику на оверлей', () => {
       cy.contains('Краторная булка N-200i').click();
+      cy.get(selectors.modal).should('be.visible');
+
       cy.get(selectors.modalOverlay).click({ force: true });
       cy.get(selectors.modal).should('not.exist');
     });
@@ -81,7 +93,11 @@ describe('Конструктор бургера', () => {
       cy.get(selectors.modalOverlay).click({ force: true });
       cy.get(selectors.modal).should('not.exist');
 
-      cy.get('.constructor-element').should('have.length.lessThan', 3);
+      cy.get(selectors.emptyBunTop).should('be.visible');
+      cy.get(selectors.emptyBunBottom).should('be.visible');
+      cy.get(selectors.emptyIngredients).should('be.visible');
+
+      cy.get('.constructor-element').should('have.length', 0);
     });
   });
 });
